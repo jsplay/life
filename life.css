@@ -1,0 +1,15 @@
+div {
+    border: 1px;
+    color: #ff0000;
+}
+[type="checkbox"] {
+    text-shadow: 1px 1px 1px rgba(0, 0, 0, .2);
+    font-size: 15px;
+    text-align: center;
+    line-height: 15px;
+
+}
+[type="button"] {
+    color: #ff0000;
+
+}
