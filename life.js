@@ -1,19 +1,24 @@
 /**
  * Created by Anton on 14/04/15.
  */
+
+var MAX_HEIGHT = 50;
+var MAX_WIDTH = 50;
+var myTimer;
+
 function showChecks() {
-    for (var i = 1; i <= 30; i++) {
-        for (var j=1; j<=40; j++) {
+    for (var i = 1; i <= MAX_HEIGHT; i++) {
+        for (var j=1; j<= MAX_WIDTH; j++) {
             newcheck = document.createElement('input');
             newcheck.type = 'checkbox';
             newcheck.id = 'check_'+i+'_'+j;
-            if (Math.random() > 0.94)
+            if (Math.random() > 0.86)
             {
                 newcheck.checked = true;
-                //newcheck.disabled = false;
+                newcheck.disabled = false;
             } else {
                 newcheck.checked = false;
-                //newcheck.disabled = true;
+                newcheck.disabled = true;
             }
             document.body.appendChild(newcheck);
         }
@@ -23,14 +28,14 @@ function showChecks() {
     }
 }
 
-function runGame() {
+function nextStep() {
     // First writing
     var grid = [];
 
-    for (var i = 1; i <= 30; i++)
+    for (var i = 1; i <= MAX_HEIGHT; i++)
     {
         grid[i] = [];
-        for (var j = 1; j <= 40; j++) {
+        for (var j = 1; j <= MAX_WIDTH; j++) {
             counterLiveCells = 0;
             check = document.getElementById('check_'+i+'_'+j);
 
@@ -42,7 +47,7 @@ function runGame() {
                 }
             }
             // left neighbor
-            if (j < 40) {
+            if (j < MAX_WIDTH) {
                 if (document.getElementById('check_'+i+'_'+(j+1)).checked == true) {
                     counterLiveCells++;
                 }
@@ -66,7 +71,7 @@ function runGame() {
             }
 
             // next row neighbors
-            if (i < 30) {
+            if (i < MAX_HEIGHT) {
                 if (document.getElementById('check_'+(i+1)+'_'+j).checked == true) {
                     counterLiveCells++;
                 }
@@ -75,7 +80,7 @@ function runGame() {
                         counterLiveCells++;
                     }
                 }
-                if (j < 40) {
+                if (j < MAX_WIDTH) {
                     if (document.getElementById('check_'+(i+1)+'_'+(j+1)).checked == true) {
                         counterLiveCells++;
                     }
@@ -101,8 +106,8 @@ function runGame() {
     }
 
     // Переносим данные из архива на поле
-    for (var i = 1; i <= 30; i++) {
-        for (var j = 1; j <= 40; j++) {
+    for (var i = 1; i <= MAX_HEIGHT; i++) {
+        for (var j = 1; j <= MAX_WIDTH; j++) {
             document.getElementById('check_'+i+'_'+j).checked = grid[i][j];
             if (grid[i][j] == true) {
                 if (document.getElementById('check_'+i+'_'+j).disabled == true) {
@@ -112,4 +117,13 @@ function runGame() {
         }
     }
 
+}
+
+
+function runGame() {
+    myTimer = setInterval(function(){ nextStep() }, 100);
+}
+
+function stopGame() {
+    clearTimeout(myTimer)
 }
