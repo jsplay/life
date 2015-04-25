@@ -1,15 +1,31 @@
 div {
     border: 1px;
-    color: #ff0000;
 }
-[type="checkbox"] {
-    text-shadow: 1px 1px 1px rgba(0, 0, 0, .2);
-    font-size: 15px;
-    text-align: center;
-    line-height: 15px;
 
+.checkbox {
+    position:relative;
+    padding-left:25px;
 }
-[type="button"] {
-    color: #ff0000;
 
+.checkbox input[type=checkbox] {
+    display:none;
+}
+
+.checkbox label:after {
+    content:'';
+    display:block;
+    height:14px;
+    width:14px;
+    outline:1px solid #939598;
+    position:absolute;
+    top:0;
+    left:0;
+}
+
+.checkbox input[type=checkbox]:checked + label:after {
+    outline:1px solid #939598;
+    border:2px solid #fff;
+    width:10px;
+    height:10px;
+    background-color:#63849F;
 }
