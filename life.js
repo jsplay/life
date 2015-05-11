@@ -2,37 +2,52 @@
  * Created by Jay Dee on 14/04/15.
  */
 
-var MAX_WIDTH = 50;
-var MAX_HEIGHT = 40;
-var myTimer, t;
+var CANVAS_WIDTH = 1000;
+var CANVAS_HEIGHT = 1000;
+var MAX_WIDTH = 90;
+var MAX_HEIGHT = 80;
+var DOT_SIZE = 3;
+
+var myTimer;
 // the main grid
 var grid = [];
 // the changes grid
 var changes = [];
+// iterations counter
 var iterations;
+// should be removed in version 1.2
 var colors = ["#f1f1f1","#e5e5e5","#dcdcdc","#d1d1d1","#c5c5c5","#bdbdbd","#b5b5b5","#aaaaaa","#9d9d9d","#929292","#898989","#858585","#2E578C"];
-// how many times the cell was visited
-// according to these visits, changing the colors of the cell
-var visited = [];
+// dot objects store here
+var objects = [];
 
-var canvas = document.querySelector("canvas");
+var canvas = document.getElementById("mycanvas");
 var context = canvas.getContext("2d");
 
-for (var i = 0; i <= MAX_HEIGHT+1; i++)
-{
-    grid[i] = [];
-    changes[i] = [];
-    visited[i] = [];
-    for (var j = 0; j <= MAX_WIDTH+1; j++) {
-        grid[i][j] = 0;
-        changes[i][j] = 0;
-    }
+function dot() {
+    this.active = false;
+    this.color = 0xf9f9f9;
+    this.oldcolor = 0xf9f9f9;
 }
 
 initGrid();
+drawGrid();
 
-// ------------------------ initGrid ----------------------------
-function initGrid()
+// ---------------------- FUNCTIONS -------------------------
+function initGrid() {
+    for (var i = 0; i <= MAX_HEIGHT+1; i++)
+    {
+        grid[i] = [];
+        changes[i] = [];
+        objects[i] = [];
+        for (var j = 0; j <= MAX_WIDTH+1; j++) {
+            grid[i][j] = 0;
+            changes[i][j] = 0;
+            objects[i][j] = new dot();
+        }
+    }
+}
+
+function drawGrid()
 {
     for (var i = 1; i <= MAX_HEIGHT; i++)
     {
@@ -40,62 +55,59 @@ function initGrid()
         {
             if (Math.random() > 0.86)
             {
+                // live cell
                 grid[i][j] = 1;
                 changes[i][j] = 1;
-                visited[i][j] = 1;
-                context.fillStyle = colors[12];
-                context.beginPath();
-                context.arc(i*20,j*20,5,0,2*Math.PI);
-                context.fill();
-            } else {
+                objects[i][j].active = true;
+                objects[i][j].color = 0x2E578C;
+                context.fillStyle = "#2E578C";
+            }
+            else {
+                // dead cell
                 grid[i][j] = 0;
                 changes[i][j] = 0;
-                visited[i][j] = 0;
-                context.fillStyle = colors[0];
-                context.beginPath();
-                context.arc(i*20,j*20,5,0,2*Math.PI);
-                context.fill();
+                objects[i][j].active = false;
+                context.fillStyle = "#f9f9f9";
             }
+            context.beginPath();
+            context.arc(i*DOT_SIZE*4,j*DOT_SIZE*4,DOT_SIZE,0,2*Math.PI);
+            context.fill();
         }
     }
     iterations = 1;
 }
 
 function nextStep() {
-    // First writing
-    var t;
-
     for (var i = 1; i <= MAX_HEIGHT; i++)
     {
         for (var j = 1; j <= MAX_WIDTH; j++)
         {
             var counterLiveCells = 0;
-
-            // checking neighbors
+            
+            // checking neighbors (this includes the center dot as well)
             for (var k = -1; k <= 1; k++) {
                 for (var l = -1; l <= 1; l++) {
-                    if (grid[i+k][j+l] > 0) {
+                    if (objects[i+k][j+l].active == true) {
                         counterLiveCells++;
                     }
                 }
             }
-
+            
             if (grid[i][j] > 0) {
+                // minus center dot
                 counterLiveCells--;
                 // rule 1, live cell becomes dead
                 if (counterLiveCells < 2 || counterLiveCells > 3) {
                     changes[i][j] = 0;
-                    visited[i][j]++;
                 }
-                // rule 1, live cell remains alive
+                // rule 2, live cell remains alive
                 if (counterLiveCells == 2 || counterLiveCells == 3) {
-                    changes[i][j] = 12;
-                    visited[i][j]++;
+                    changes[i][j] = 1;
                 }
             } else {
                 // rule 3, dead cell becomes alive
                 if (counterLiveCells == 3) {
-                    changes[i][j] = 12;
+                    changes[i][j] = 2;
                 }
             }
         }
@@ -103,7 +115,7 @@ function nextStep() {
 
     // Clearing the field
     context.fillStyle = "#FFFFFF";
-    context.rect(0,0,1000,1100);
+    context.rect(0,0,CANVAS_WIDTH,CANVAS_HEIGHT);
     context.fill();
 
     // Drawing the field
@@ -111,14 +123,24 @@ function nextStep() {
     {
         for (var j = 1; j <= MAX_WIDTH; j++)
         {
-            /*if (visited[i][j] < 12) {
-                context.fillStyle = colors[changes[i][j]+visited[i][j]];
-            } else {
-                context.fillStyle = colors[changes[i][j]];
-            }*/
-            context.fillStyle = colors[changes[i][j]];
+            if (changes[i][j] == 0) {
+                objects[i][j].color = objects[i][j].oldcolor;
+                objects[i][j].active = false;
+            }
+            else if (changes[i][j] == 1) {
+                objects[i][j].color = 0x2E578C;
+                objects[i][j].active = true;
+            }
+            else if (changes[i][j] == 2) {
+                objects[i][j].color -= 0x040404;
+                objects[i][j].oldcolor = objects[i][j].color;
+                objects[i][j].color = 0x2E578C;
+                objects[i][j].active = true;
+            }
+            
+            context.fillStyle = "#" + objects[i][j].color.toString(16);
             context.beginPath();
-            context.arc(i*20,j*20,5,0,2*Math.PI);
+            context.arc(i*DOT_SIZE*4,j*DOT_SIZE*4,DOT_SIZE,0,2*Math.PI);
             context.fill();
 
             grid[i][j] = changes[i][j];
