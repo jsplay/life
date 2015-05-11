@@ -6,19 +6,18 @@
     <script src="life.js"></script>
     <link rel="stylesheet" href="life.css">
 </head>
-<body onLoad="showChecks()">
+<body>
 
 <div>
     <button onclick="nextStep()">next gen</button>
     <button onclick="runGame()">run!</button>
     <button onclick="stopGame()">stop</button>
     <label id=""iterLabel">iterations:</label>
-    <input type="text" maxlength="5" value="" id="iterCounter">
+    <input type="text" maxlength="2" value="" id="iterCounter">
 </div>
 
-<div class="checkbox">
-    <input type="checkbox" id="check"></div>
-</div>
+<canvas width="1000" height="1100"></canvas>
+<script src="life.js"></script>
 
 </body>
 </html>
